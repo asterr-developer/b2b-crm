@@ -1,0 +1,60 @@
+services:
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  horizon:
+    build:
+      context: .
+      dockerfile: docker/queue.Dockerfile
+    command: ["php", "artisan", "horizon"]
+    env_file: .env
+    environment: &queue-env
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_CLIENT: predis
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: ["automation"]
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/queue.Dockerfile
+    command: ["php", "artisan", "schedule:work"]
+    env_file: .env
+    environment: *queue-env
+    volumes:
+      - .:/app
+    depends_on:
+      horizon:
+        condition: service_started
+    profiles: ["automation"]
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-crm}
+      POSTGRES_USER: ${DB_USERNAME:-crm}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${DB_PORT:-55432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  postgres-data:
+  redis-data:

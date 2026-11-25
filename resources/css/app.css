@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .moon-header {
+        @apply rounded-2xl border px-5 py-6 sm:px-7 sm:py-7;
+        background: linear-gradient(120deg, hsl(var(--card)), hsl(var(--accent)));
+    }
+    .moon-panel {
+        @apply min-w-0 rounded-2xl border bg-card shadow-sm;
+    }
+    .moon-empty {
+        @apply rounded-xl border border-dashed bg-background/50 p-5 text-sm text-muted-foreground;
+    }
+    .moon-toolbar {
+        @apply rounded-xl border bg-card p-3 sm:p-4;
+    }
+    .moon-pill {
+        @apply inline-flex max-w-full items-center rounded-full border bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground;
+    }
+    .moon-pill[data-tone] {
+        color: hsl(var(--status-tone));
+        background: hsl(var(--status-tone) / .09);
+        border-color: hsl(var(--status-tone) / .28);
+    }
+    .moon-pill[data-tone="neutral"] { --status-tone: var(--muted-foreground); }
+    .moon-pill[data-tone="info"] { --status-tone: var(--status-info); }
+    .moon-pill[data-tone="success"] { --status-tone: var(--status-success); }
+    .moon-pill[data-tone="warning"] { --status-tone: var(--status-warning); }
+    .moon-pill[data-tone="danger"] { --status-tone: var(--destructive); }
+    .moon-section-link {
+        @apply inline-flex min-h-10 items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-accent;
+    }
+    .moon-progress {
+        @apply h-2 w-full overflow-hidden rounded-full;
+        appearance: none;
+        background: hsl(var(--muted));
+        accent-color: hsl(var(--primary));
+    }
+    .moon-progress::-webkit-progress-bar { background: hsl(var(--muted)); }
+    .moon-progress::-webkit-progress-value { background: hsl(var(--primary)); border-radius: 999px; }
+    .moon-progress::-moz-progress-bar { background: hsl(var(--primary)); border-radius: 999px; }
+}
+
+body,
+html {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    :root {
+        color-scheme: light;
+        --background: 226 32% 96%;
+        --foreground: 229 33% 17%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 3.9%;
+        --primary: 227 35% 30%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 92.1%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 225 23% 89%;
+        --muted-foreground: 226 19% 36%;
+        --accent: 226 54% 94%;
+        --accent-foreground: 0 0% 9%;
+        --destructive: 0 68% 42%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 224 26% 87%;
+        --input: 224 21% 78%;
+        --ring: 227 51% 47%;
+        --status-info: 226 58% 37%;
+        --status-success: 151 55% 26%;
+        --status-warning: 32 76% 30%;
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+        --radius: 0.5rem;
+        --sidebar-background: 228 32% 93%;
+        --sidebar-foreground: 229 33% 21%;
+        --sidebar-primary: 227 35% 30%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 228 43% 87%;
+        --sidebar-accent-foreground: 229 42% 19%;
+        --sidebar-border: 228 24% 79%;
+        --sidebar-ring: 227 51% 47%;
+    }
+
+    .dark {
+        color-scheme: dark;
+        --background: 231 29% 11%;
+        --foreground: 224 30% 94%;
+        --card: 230 26% 15%;
+        --card-foreground: 0 0% 98%;
+        --popover: 230 26% 17%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 225 62% 82%;
+        --primary-foreground: 230 40% 14%;
+        --secondary: 228 23% 22%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 229 24% 17%;
+        --muted-foreground: 224 17% 70%;
+        --accent: 228 32% 24%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 228 20% 24%;
+        --input: 225 20% 33%;
+        --ring: 224 72% 80%;
+        --status-info: 222 83% 82%;
+        --status-success: 151 51% 71%;
+        --status-warning: 39 94% 73%;
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+        --sidebar-background: 231 35% 8%;
+        --sidebar-foreground: 222 30% 89%;
+        --sidebar-primary: 225 68% 82%;
+        --sidebar-primary-foreground: 231 45% 15%;
+        --sidebar-accent: 230 32% 20%;
+        --sidebar-accent-foreground: 224 73% 94%;
+        --sidebar-border: 228 22% 20%;
+        --sidebar-ring: 224 72% 80%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    input::placeholder, textarea::placeholder {
+        @apply text-muted-foreground;
+    }
+
+    :where(button, a, input, textarea, select, summary):focus-visible {
+        outline: 2px solid hsl(var(--ring));
+        outline-offset: 3px;
+    }
+}
