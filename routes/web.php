@@ -81,6 +81,7 @@ Route::middleware([...(config('crm.require_verified_email') ? ['auth', 'verified
         Route::post('contacts', 'contact')->name('contact');
         Route::post('activities', 'activity')->name('activity');
         Route::patch('activities/{activity}', 'complete')->whereNumber('activity')->name('complete');
+        Route::post('estimate', 'estimate')->middleware('throttle:20,1')->name('estimate');
         Route::post('proposals', 'proposal')->name('proposal');
         Route::patch('proposals/{proposal}', 'proposalStatus')->whereNumber('proposal')->name('proposal.status');
         Route::get('proposals/{proposal}/pdf', 'proposalDocument')->whereNumber('proposal')->name('proposal.pdf');

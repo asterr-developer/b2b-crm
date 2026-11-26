@@ -16,3 +16,6 @@ Route::prefix('erp/v1')->middleware('throttle:60,1,erp')->group(function () {
     Route::post('deals/{deal}/payments/{kind}', [ErpController::class, 'payment'])
         ->whereNumber('deal')->whereIn('kind', ['deposit', 'balance'])->name('api.erp.payment');
 });
+
+Route::get('estimate/v1/deals/{deal?}', \App\Http\Controllers\EstimateDealsController::class)
+    ->whereNumber('deal')->middleware('throttle:60,1,estimate');

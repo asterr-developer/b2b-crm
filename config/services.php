@@ -14,6 +14,13 @@ return [
     |
     */
 
+    'estimates' => [
+        'url' => env('CRM_ESTIMATE_URL'),
+        'token' => env('CRM_ESTIMATE_TOKEN'),
+        'source' => env('CRM_ESTIMATE_SOURCE'),
+        'department_id' => env('CRM_ESTIMATE_DEPARTMENT_ID'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

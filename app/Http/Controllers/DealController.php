@@ -11,6 +11,7 @@ use App\Models\Proposal;
 use App\Models\SalesEvent;
 use App\Models\SalesPipeline;
 use App\Models\User;
+use App\Services\EstimateBridge;
 use App\Services\ProposalPdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ use Symfony\Component\Mime\Email;
 
 class DealController extends Controller
 {
-    public function show(Request $request, int $deal): Response
+    public function show(Request $request, int $deal, EstimateBridge $estimates): Response
     {
         $current = Deal::visibleTo($request->user())->with('contact.company', 'assignee:id,name')->findOrFail($deal);
         $group = GroupRequest::where('deal_id', $deal)->first(['id', 'arrival_on', 'departure_on', 'guests', 'source']);
@@ -35,6 +36,7 @@ class DealController extends Controller
             : SalesPipeline::where('department_id', $current->department_id)->find($current->sales_pipeline_id);
 
         return Inertia::render('Deal', [
+            'estimate' => fn () => $estimates->exchange($current),
             'deal' => $current,
             'contacts' => DB::table('deal_contacts')->join('contacts', 'contacts.id', '=', 'deal_contacts.contact_id')
                 ->where('deal_id', $deal)->orderBy('contacts.name')->get(['contacts.id', 'name', 'email', 'role']),
@@ -152,6 +154,17 @@ class DealController extends Controller
         }
 
         return to_route('deals.show', $deal);
+    }
+
+    public function estimate(Request $request, int $deal, EstimateBridge $estimates): RedirectResponse
+    {
+        $current = Deal::visibleTo($request->user())->with('contact.company')->findOrFail($deal);
+        $result = $estimates->exchange($current, create: true);
+        if (($result['status'] ?? null) !== 'linked') {
+            return back()->withErrors(['estimate' => 'Смета недоступна. Повторите запрос позднее.']);
+        }
+
+        return back();
     }
 
     public function proposal(Request $request, int $deal): RedirectResponse

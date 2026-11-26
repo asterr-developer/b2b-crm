@@ -25,6 +25,7 @@ const props = defineProps<{
     emailEnabled: boolean;
     deliveries: Record<number, { status: string; attempts: number; recipient: string }>;
     replies: { id:number; sender:string; subject:string; body:string; received_at:string; version:number }[];
+    estimate: { status: 'new' | 'linked' | 'unavailable'; url?: string; accepted?: { number: string; total_minor: number; url: string } | null } | null;
     canApprove: boolean;
     viewerId: number;
     assignees: { id: number; name: string }[];
@@ -37,6 +38,7 @@ const details = useForm({ amount: props.deal.amount, expected_close_on: props.de
 const contact = useForm({ name: '', email: '', role: '' });
 const activity = useForm({ kind: 'note', body: '', due_at: '' });
 const task = useForm({});
+const estimateForm = useForm<{ estimate?: string }>({});
 const proposal = useForm({ items: [{ name: '', quantity: '1', price: '' }], discount: 0 });
 const delivery = useForm<{ retry: boolean; delivery?: string }>({ retry: false });
 const deliveryLabels: Record<string, string> = {
@@ -188,12 +190,29 @@ function assign(event: Event) {
             </header>
             <nav aria-label="Разделы сделки" class="flex flex-wrap gap-2">
                 <a class="moon-section-link" href="#proposals">Предложения</a>
+                <a v-if="estimate" class="moon-section-link" href="#estimate">Смета</a>
                 <a v-if="groupRequest" class="moon-section-link" href="#booking">Бронь</a>
                 <a class="moon-section-link" href="#payments">Оплата</a>
                 <a class="moon-section-link" href="#history">История</a>
                 <a class="moon-section-link" href="#deal-details">Данные сделки</a>
             </nav>
             <div class="grid items-start gap-5 lg:grid-cols-2">
+                <section v-if="estimate" id="estimate" aria-labelledby="estimate-title" class="moon-panel scroll-mt-4 space-y-3 p-5 lg:col-span-2">
+                    <h2 id="estimate-title" class="text-lg font-semibold">Смета</h2>
+                    <p v-if="estimate.status === 'unavailable'" class="text-sm text-muted-foreground">Связь со «Сметой» временно недоступна.</p>
+                    <button v-else-if="estimate.status === 'new'" type="button" class="moon-section-link"
+                        :disabled="estimateForm.processing"
+                        @click="estimateForm.post(route('deals.estimate', { deal: id }), { preserveScroll: true })">Создать черновик сметы</button>
+                    <template v-else>
+                        <a class="moon-section-link inline-flex" :href="estimate.url" target="_blank" rel="noopener noreferrer">Открыть черновик</a>
+                        <p v-if="estimate.accepted" class="text-sm">
+                            <a class="underline" :href="estimate.accepted.url" target="_blank" rel="noopener noreferrer">Принятая смета №{{ estimate.accepted.number }}</a>
+                            · {{ money.format(estimate.accepted.total_minor / 100) }}
+                        </p>
+                        <p v-else class="text-sm text-muted-foreground">Принятой версии пока нет.</p>
+                    </template>
+                    <p v-if="estimateForm.errors.estimate" role="alert">{{ estimateForm.errors.estimate }}</p>
+                </section>
                 <section id="proposals" class="moon-panel scroll-mt-4 space-y-5 p-5 lg:col-span-2">
                     <h2 class="text-lg font-semibold">Коммерческие предложения</h2>
                     <form v-if="!['won', 'lost'].includes(deal.stage)" class="grid gap-3" @submit.prevent="proposal.post(route('deals.proposal', { deal: id }), { preserveScroll: true, onSuccess: () => proposal.reset() })">
